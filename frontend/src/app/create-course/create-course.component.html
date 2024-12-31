@@ -1,0 +1,41 @@
+<div class="form-container">
+  <h2>Create Course</h2>
+  <form (ngSubmit)="submitCourse()"> 
+    <div class="form-group">
+      <label for="name">Course Name:</label>
+      <input type="text" id="name" [(ngModel)]="course.name" name="name" required>
+    </div>
+
+    <div class="form-group">
+      <label for="image">Image URL:</label>
+      <input type="text" id="image" [(ngModel)]="course.image" name="image" required>
+    </div>
+
+    <div class="form-group">
+      <label for="startDate">Start Date:</label>
+      <input type="date" id="startDate" [(ngModel)]="course.startDate" name="startDate" required>
+    </div>
+
+    <div class="form-group">
+      <label for="endDate">End Date:</label>
+      <input type="date" id="endDate" [(ngModel)]="course.endDate" name="endDate" required>
+    </div>
+
+    <div class="form-group">
+      <label for="duration">Duration:</label>
+      <input type="text" id="duration" [(ngModel)]="course.duration" name="duration" required>
+    </div>
+
+    <div class="form-group">
+      <label for="rating">Rating:</label>
+      <input type="number" id="rating" [(ngModel)]="course.rating" name="rating" required>
+    </div>
+
+    <div class="form-group">
+      <label for="mentor">Mentor:</label>
+      <input type="text" id="mentor" [(ngModel)]="course.mentor" name="mentor" required>
+    </div>
+
+    <button type="submit" class="submit-button">Create Course</button>
+  </form>
+</div>

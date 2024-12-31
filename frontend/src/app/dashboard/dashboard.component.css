@@ -1,0 +1,28 @@
+.heading{
+   
+    padding: 5px 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    border-radius: 2px;
+    color:black;
+    
+}
+.button{
+    width: 30%;
+ padding: 10px;
+ border: 1px solid black;
+ border-radius: 6px;
+ color:black;
+ font-size: 25px;
+ text-align: center;
+
+ }
+ .dis{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    
+ }

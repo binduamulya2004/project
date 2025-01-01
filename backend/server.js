@@ -1,10 +1,10 @@
-const express = require('express');
+const express= require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken'); // Import JWT
- 
+const jwt = require('jsonwebtoken'); 
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -15,7 +15,7 @@ const db = mysql.createConnection({
   password: '',
   database: 'newdb',
 });
- 
+
 db.connect((err) => {
   if (err) {
     console.error('Error connecting to database:', err);
@@ -26,44 +26,59 @@ db.connect((err) => {
  
 // Secret key for JWT
 const JWT_SECRET = 'hiiiiii';
+
 // Middleware to verify JWT token
+//Protects routes by ensuring only authenticated users can access them.
 const authenticateToken = (req, res, next) => {
-  const token = req.header('Authorization')?.split(' ')[1]; // Get the token from the Authorization header
+  const token = req.header('Authorization')?.split(' ')[1];
  
+  //Retrieves the value of the Authorization header from the incoming HTTP request.
+  //The string Bearer will be returned 
+  // /?. (Optional Chaining):Safely accesses the Authorization header,
+   //The result of .split(' ') would be:['Bearer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abcdef123456']
+
+
   if (!token) {
     return res.status(401).json({ message: 'Access Denied. No Token Provided' });
   }
- 
+
+  //This function verifies the JSON Web Token (JWT) provided in the request.
+  //If the token is valid, the user parameter contains the decoded payload.
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid or Expired Token' });
     }
- 
     req.user = user; // Save user information from token to request object
-    next();
+    next(); // It is used to pass control to the next middleware function in the stack.
   });
 };
+
+
 // Register Endpoint
 app.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password } = req.body; //its a json obj  { " ":" " , "":"",}
  
+  //to check  email address already exists in the users table.
+  //The ? is a placeholder for parameterized queries, which helps prevent SQL injection attacks by sanitizing user inputs.
+
   const checkuserquery = 'SELECT * FROM users WHERE email = ?';
   db.query(checkuserquery, [email], async (err, results) => {
     if (err) return res.status(500).send(err);
  
-    if (results.length > 0) {
+    if (results.length > 0) { //1/2/3 -no of rows matching 
       return res.status(400).json({ message: 'Email already exists' });
     }
  
     // Hash password before saving to database
     try {
-      const hashedPassword = await bcrypt.hash(password, 10); // Salt rounds are set to 10
+      const hashedPassword = await bcrypt.hash(password, 10); // Salt rounds are set to 10 This means bcrypt will process the password 10 times to generate a more secure hash.
  
       const insertquery = 'INSERT INTO users(name, email, password) VALUES(?,?,?)';
       db.query(insertquery, [name, email, hashedPassword], (err) => {
         if (err) return res.status(500).send(err);
- 
-        // Generate JWT token
+
+
+        // Generate JWT token ,JWT_SECRET is the secret key used to sign the token
         const token = jwt.sign({ email, name }, JWT_SECRET, { expiresIn: '1h' }); // Token expires in 1 hour
  
         res.status(200).json({ message: 'User Registered Successfully', token });
@@ -83,7 +98,7 @@ app.post('/login', (req, res) => {
     if (err) return res.status(500).send(err);
  
     if (results.length > 0) {
-      const user = results[0];
+      const user = results[0]; //results array will contain the rows returned by the database.
  
       // Compare password with hashed password
       try {

@@ -106,6 +106,9 @@ export class LoginComponent {
 
 
   // Register form submission
+  
+  
+  
   registerform() {
     this.http.post('http://localhost:3000/register', this.registerobj)
       .subscribe({
@@ -135,8 +138,6 @@ export class LoginComponent {
       });
   }
 }
-
-
 
 
 

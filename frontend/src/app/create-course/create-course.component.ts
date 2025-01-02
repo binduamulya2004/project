@@ -10,7 +10,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   imports: [FormsModule],
 })
 export class CreateCourseComponent {
- 
   course = {
     name: '',
     image: '',

@@ -1,0 +1,3 @@
+npx knex migrate:make create_users
+npx knex migrate:make create_courses
+npx knex migrate:latest

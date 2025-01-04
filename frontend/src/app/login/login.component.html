@@ -1,11 +1,11 @@
 <div class="heading">
     <h2>Login-SignUp</h2>
 </div>
-  
-  <div class="logincontainer">
+
+<div class="logincontainer">
 
 
-    <!-- Register Form  without validation
+  <!-- Register Form  without validation
     <form *ngIf="activeform === 'register'" (submit)="registerform(); $event.preventDefault()">
       <h2>REGISTER</h2>
       <div class="form-group">
@@ -41,111 +41,110 @@
       </p>
     </form> -->
 
+  <!-- Register Form  with validation -->
+  <form *ngIf="activeform === 'register'" (ngSubmit)="registerform()" novalidate>
+    <h2>REGISTER</h2>
 
-
-
-      <!-- Register Form  with validation -->
-<form *ngIf="activeform === 'register'" (ngSubmit)="registerform()" novalidate>
-  <h2>REGISTER</h2>
-
-  <!-- Name Field -->
-  <div class="form-group">
-    <input
-      type="text"
-      name="name"
-      [(ngModel)]="registerobj.name"
-      placeholder="Enter Your Name"
-      required
-      #name="ngModel"
-    />
-    <div *ngIf="name.invalid && name.touched">
-      <small *ngIf="name.errors?.['required']">Name is required.</small>
+    <!-- Name Field -->
+    <div class="form-group">
+      <input type="text" name="name" [(ngModel)]="registerobj.name" placeholder="Enter Your Name" required
+        #name="ngModel" />
+      <div *ngIf="name.invalid && name.touched">
+        <small *ngIf="name.errors?.['required']">Name is required.</small>
+      </div>
     </div>
-  </div>
-  <!-- <div>
+    <!-- <div>
   <button (click)="display(name)">display</button>
   </div> -->
 
-  <!-- Email Field -->
-  <div class="form-group">
-    <input
-      type="email"
-      name="email"
-      [(ngModel)]="registerobj.email"
-      placeholder="Enter Your Email"
-      required
-      email
-      #email="ngModel"
-    />
-    <div *ngIf="email.invalid && email.touched">
-      <small *ngIf="email.errors?.['required']">Email is required.</small>
-      <small *ngIf="email.errors?.['email']">Enter a valid email address.</small>
-    </div>
-  </div>
-
-  <!-- Password Field -->
-  <div class="form-group">
-    <input
-      type="password"
-      name="password"
-      [(ngModel)]="registerobj.password"
-      placeholder="Enter Your Password"
-      required
-      minlength="4"
-      #password="ngModel"
-    />
-    <div *ngIf="password.invalid && password.touched">
-      <small *ngIf="password.errors?.['required']">Password is required.</small>
-      <small *ngIf="password.errors?.['minlength']">
-        Password must be at least 4 characters long.
-      </small>
-    </div>
-  </div>
-
-  <!-- Submit Button -->
-  <button type="submit" [disabled]="!name.valid || !email.valid || !password.valid">
-    Register
-  </button>
-
-  <!-- Toggle to Login -->
-  <p (click)="toggleform('login')">
-    Already have an account? <span class="highlighted">LOGIN</span>
-  </p>
-</form>
-
-
-
-
-
-    <!-- Login Form -->
-    <form *ngIf="activeform === 'login'" (submit)="loginform(); $event.preventDefault()">
-      <h2>LOGIN</h2>
-      <div class="form-group">
-        <input
-          type="email"
-          name="email"
-          [(ngModel)]="loginobj.email"
-          placeholder="Enter Your Email"
-          required
-        />
+    <!-- Email Field -->
+    <div class="form-group">
+      <input type="email" name="email" [(ngModel)]="registerobj.email" placeholder="Enter Your Email" required email
+        #email="ngModel" />
+      <div *ngIf="email.invalid && email.touched">
+        <small *ngIf="email.errors?.['required']">Email is required.</small>
+        <small *ngIf="email.errors?.['email']">Enter a valid email address.</small>
       </div>
-      <div class="form-group">
-        <input
-          type="password"
-          name="password"
-          [(ngModel)]="loginobj.password"
-          placeholder="Enter Your Password"
-          required
-        />
+    </div>
+
+    <!-- Password Field -->
+    <div class="form-group">
+      <input type="password" name="password" [(ngModel)]="registerobj.password" placeholder="Enter Your Password"
+        required minlength="4" #password="ngModel" />
+      <div *ngIf="password.invalid && password.touched">
+        <small *ngIf="password.errors?.['required']">Password is required.</small>
+        <small *ngIf="password.errors?.['minlength']">
+          Password must be at least 4 characters long.
+        </small>
       </div>
-      <button type="submit">LOGIN</button>
-      <p (click)="toggleform('register')">
-        Don't have an account? <span class="highlighted">REGISTER</span>
-      </p>
-    </form>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" [disabled]="!name.valid || !email.valid || !password.valid">
+      Register
+    </button>
+
+    <!-- Toggle to Login -->
+    <p (click)="toggleform('login')">
+      Already have an account? <span class="highlighted">LOGIN</span>
+    </p>
+  </form>
 
 
+  <!-- Login Form -->
+  <form *ngIf="activeform === 'login'" (submit)="loginform(); $event.preventDefault()">
+    <h2>LOGIN</h2>
+    <div class="form-group">
+      <input type="email" name="email" [(ngModel)]="loginobj.email" placeholder="Enter Your Email" required />
+    </div>
+    <div class="form-group">
+      <input type="password" name="password" [(ngModel)]="loginobj.password" placeholder="Enter Your Password"
+        required />
+    </div>
+    <button type="submit">LOGIN</button>
+    <p (click)="toggleform('register')">
+      Don't have an account? <span class="highlighted">REGISTER</span>
+    </p>
+  </form>
+
+</div>
 
 
-  </div>
-  
+<div *ngIf="showUsersTable">
+  <h3>Registered Users</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Options</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users; let i = index">
+        <td>
+          <div *ngIf="editingIndex === i">
+            <input [(ngModel)]="editObject.name" placeholder="Edit Name" />
+          </div>
+          <div *ngIf="editingIndex !== i">{{ user.name }}</div>
+        </td>
+        <td>
+          <div *ngIf="editingIndex === i">
+            <input [(ngModel)]="editObject.email" placeholder="Edit Email" />
+          </div>
+          <div *ngIf="editingIndex !== i">{{ user.email }}</div>
+        </td>
+        <td>
+          <div *ngIf="editingIndex === i">
+            <button (click)="saveEdit()">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+          <div *ngIf="editingIndex !== i">
+            <button class="edit-btn" (click)="editUser(i)">Edit</button>
+            <button class="delete-btn" (click)="deleteUser(i)">Delete</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

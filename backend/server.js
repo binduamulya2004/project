@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken'); 
+const jwt = require('jsonwebtoken');
 
 const app = express();
 app.use(cors());
@@ -33,7 +33,7 @@ const authenticateToken = (req, res, next) => {
   const token = req.header('Authorization')?.split(' ')[1];
  
   //Retrieves the value of the Authorization header from the incoming HTTP request.
-  //The string Bearer will be returned 
+  //The string Bearer will be returned
   // /?. (Optional Chaining):Safely accesses the Authorization header,
    //The result of .split(' ') would be:['Bearer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abcdef123456']
 
@@ -65,7 +65,7 @@ app.post('/register', async (req, res) => {
   db.query(checkuserquery, [email], async (err, results) => {
     if (err) return res.status(500).send(err);
  
-    if (results.length > 0) { //1/2/3 -no of rows matching 
+    if (results.length > 0) { //1/2/3 -no of rows matching
       return res.status(400).json({ message: 'Email already exists' });
     }
  
@@ -119,9 +119,11 @@ app.post('/login', (req, res) => {
     }
   });
 });
+
+
  
  
- 
+
 // Protected Route Example - Create Course Endpoint (Requires Authentication)
 app.post('/create-course', authenticateToken, (req, res) => {
   const { name, image, startDate, endDate, duration, rating, mentor } = req.body;
@@ -133,6 +135,9 @@ app.post('/create-course', authenticateToken, (req, res) => {
     res.status(200).json({ message: 'Course Created Successfully' });
   });
 });
+
+
+
  
 // Fetch Courses Endpoint (No Authentication Needed)
 app.get('/courses', (req, res) => {
@@ -143,9 +148,73 @@ app.get('/courses', (req, res) => {
     res.status(200).json(results);
   });
 });
- 
+
+// Fetch users
+app.get('/users', (req, res) => {
+  const query = 'SELECT id, name, email FROM users';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).send(err);
+    res.status(200).json(results);
+  });
+});
+// Fetch user by ID
+app.get('/users/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT id, name, email FROM users WHERE id = ?';
+  db.query(query, [id], (err, results) => {
+    if (err) return res.status(500).send(err);
+    if (results.length === 0) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json(results[0]);
+  });
+});
+
+
+// Update user
+const bcrypt = require('bcrypt');
+
+app.put('/users/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, email } = req.body; // Only name and email are allowed for updates
+
+    // Update query without password
+    const query = 'UPDATE users SET name = ?, email = ? WHERE id = ?';
+    const params = [name, email, id];
+
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Database update error:', err);
+            return res.status(500).json({ message: 'Failed to update user' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User updated successfully' });
+    });
+});
+
+
+
+// Delete user
+app.delete('/users/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM users WHERE id = ?';
+  db.query(query, [id], (err) => {
+    if (err) return res.status(500).json({ message: 'Failed to delete user' });
+    res.status(200).json({ message: 'User deleted successfully' });
+  });
+});
+
+
+
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
  
+
+
+
+

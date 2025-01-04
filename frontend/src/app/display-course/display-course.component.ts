@@ -40,6 +40,8 @@ export class DisplayCourseComponent implements OnInit {
     } else {
       alert('You must be logged in to view courses!');
     }
+
+    console.log(this.courses);
   }
 }
  

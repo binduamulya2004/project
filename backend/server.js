@@ -5,16 +5,19 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+require('dotenv').config();
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
  
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'newdb',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
+
 
 db.connect((err) => {
   if (err) {
@@ -25,7 +28,7 @@ db.connect((err) => {
 });
  
 // Secret key for JWT
-const JWT_SECRET = 'hiiiiii';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify JWT token
 //Protects routes by ensuring only authenticated users can access them.
@@ -170,7 +173,7 @@ app.get('/users/:id', (req, res) => {
 
 
 // Update user
-const bcrypt = require('bcrypt');
+
 
 app.put('/users/:id', (req, res) => {
     const { id } = req.params;

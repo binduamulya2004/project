@@ -1,25 +1,40 @@
+
+npm install knex mysql
+
+npm install knex mysql objection
+
 npx knex migrate:make create_users
 npx knex migrate:make create_courses
 npx knex migrate:latest
 
 
-npm install dotenv
+//frontend
+ng new updatedtask
+cd updatedtask
+npm init
+ng serve
+
+//backend
+npm init -y
+npm install express mysql body-parser cors bcrypt jsonwebtoken dotenv
+mysql -u root -p
+
 
 CREATE TABLE users (   id INT AUTO_INCREMENT PRIMARY KEY,   name VARCHAR(255) NOT NULL,   email VARCHAR(255) NOT NULL UNIQUE,   password VARCHAR(255) NOT NULL );
 CREATE TABLE courses (   id INT AUTO_INCREMENT PRIMARY KEY,   name VARCHAR(255) NOT NULL,   image VARCHAR(255) NOT NULL,   startDate DATE NOT NULL,   endDate DATE NOT NULL,   duration VARCHAR(100) NOT NULL,   rating DECIMAL(3,2) NOT NULL, mentor VARCHAR(255) NOT NULL );
 
 
+ALTER TABLE users ADD COLUMN image VARCHAR(255);
 
 
 
-
-
-
-
-
-
-
-
+CREATE TABLE users (
+   id INT AUTO_INCREMENT PRIMARY KEY,
+   name VARCHAR(255) NOT NULL,
+   email VARCHAR(255) NOT NULL UNIQUE,
+   password VARCHAR(255) NOT NULL,
+   image VARCHAR(255)  -- This column stores the URL of the user's profile image
+);
 
 
 

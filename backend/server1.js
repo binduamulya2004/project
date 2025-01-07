@@ -37,6 +37,7 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
+
 // Register Endpoint
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -104,7 +105,3 @@ app.get('/courses', async (req, res) => {
   }
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});

@@ -1,23 +1,29 @@
-const express= require('express');
+const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 require('dotenv').config();
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
- 
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
+
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
-
 
 db.connect((err) => {
   if (err) {
@@ -26,64 +32,82 @@ db.connect((err) => {
   }
   console.log('Connected to MySQL');
 });
- 
+
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify JWT token
-//Protects routes by ensuring only authenticated users can access them.
 const authenticateToken = (req, res, next) => {
   const token = req.header('Authorization')?.split(' ')[1];
- 
-  //Retrieves the value of the Authorization header from the incoming HTTP request.
-  //The string Bearer will be returned
-  // /?. (Optional Chaining):Safely accesses the Authorization header,
-   //The result of .split(' ') would be:['Bearer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abcdef123456']
-
 
   if (!token) {
     return res.status(401).json({ message: 'Access Denied. No Token Provided' });
   }
 
-  //This function verifies the JSON Web Token (JWT) provided in the request.
-  //If the token is valid, the user parameter contains the decoded payload.
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid or Expired Token' });
     }
-    req.user = user; // Save user information from token to request object
-    next(); // It is used to pass control to the next middleware function in the stack.
+    req.user = user;
+    next();
   });
 };
+
+const upload = multer(); // For handling file uploads
+
+// Endpoint to handle image upload to Cloudinary
+app.post('/uploadImage', upload.single('image'), (req, res) => {
+  console.log('Uploading image:', req.file); // Log the uploaded file info
+  if (!req.file) {
+    return res.status(400).json({ message: 'No image file uploaded' });
+  }
+
+  cloudinary.uploader.upload_stream(
+    { folder: 'user_images' }, 
+    (error, result) => {
+      if (error) {
+        console.error('Cloudinary upload error:', error); // Log Cloudinary errors
+        return res.status(500).json({ message: 'Image upload failed', error });
+      }
+
+      // Store the image URL in the database
+      const imageUrl = result.secure_url;
+      const userId = req.body.userId;
+      console.log('Updating user with image URL:', imageUrl); // Log the image URL and user ID
+      const query = 'UPDATE users SET image = ? WHERE id = ?';
+      db.query(query, [imageUrl, userId], (err) => {
+        if (err) {
+          console.error('Database update error:', err); // Log database errors
+          return res.status(500).json({ message: 'Failed to update user image' });
+        }
+        res.status(200).json({ message: 'Image uploaded successfully', user: { image: imageUrl } });
+      });
+    }
+  ).end(req.file.buffer);
+});
 
 
 // Register Endpoint
 app.post('/register', async (req, res) => {
-  const { name, email, password } = req.body; //its a json obj  { " ":" " , "":"",}
- 
-  //to check  email address already exists in the users table.
-  //The ? is a placeholder for parameterized queries, which helps prevent SQL injection attacks by sanitizing user inputs.
+  const { name, email, password } = req.body;
 
   const checkuserquery = 'SELECT * FROM users WHERE email = ?';
   db.query(checkuserquery, [email], async (err, results) => {
     if (err) return res.status(500).send(err);
- 
-    if (results.length > 0) { //1/2/3 -no of rows matching
+
+    if (results.length > 0) {
       return res.status(400).json({ message: 'Email already exists' });
     }
- 
-    // Hash password before saving to database
+
     try {
-      const hashedPassword = await bcrypt.hash(password, 10); // Salt rounds are set to 10 This means bcrypt will process the password 10 times to generate a more secure hash.
- 
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const insertquery = 'INSERT INTO users(name, email, password) VALUES(?,?,?)';
       db.query(insertquery, [name, email, hashedPassword], (err) => {
         if (err) return res.status(500).send(err);
 
+        const token = jwt.sign({ email, name }, JWT_SECRET, { expiresIn: '1h' });
 
-        // Generate JWT token ,JWT_SECRET is the secret key used to sign the token
-        const token = jwt.sign({ email, name }, JWT_SECRET, { expiresIn: '1h' }); // Token expires in 1 hour
- 
         res.status(200).json({ message: 'User Registered Successfully', token });
       });
     } catch (error) {
@@ -91,25 +115,23 @@ app.post('/register', async (req, res) => {
     }
   });
 });
- 
+
 // Login Endpoint
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
- 
+
   const loginQuery = 'SELECT * FROM users WHERE email = ?';
   db.query(loginQuery, [email], async (err, results) => {
     if (err) return res.status(500).send(err);
- 
+
     if (results.length > 0) {
-      const user = results[0]; //results array will contain the rows returned by the database.
- 
-      // Compare password with hashed password
+      const user = results[0];
+
       try {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
-          // Generate JWT token
           const token = jwt.sign({ email, name: user.name }, JWT_SECRET, { expiresIn: '1h' });
- 
+
           res.status(200).json({ message: 'Login Successful', token });
         } else {
           res.status(400).json({ message: 'Invalid Credentials' });
@@ -124,100 +146,33 @@ app.post('/login', (req, res) => {
 });
 
 
- 
- 
-
-// Protected Route Example - Create Course Endpoint (Requires Authentication)
-app.post('/create-course', authenticateToken, (req, res) => {
-  const { name, image, startDate, endDate, duration, rating, mentor } = req.body;
- 
-  const query = 'INSERT INTO courses (name, image, startDate, endDate, duration, rating, mentor) VALUES (?, ?, ?, ?, ?, ?, ?)';
-  db.query(query, [name, image, startDate, endDate, duration, rating, mentor], (err) => {
-    if (err) return res.status(500).send(err);
- 
-    res.status(200).json({ message: 'Course Created Successfully' });
-  });
-});
-
-
-
- 
-// Fetch Courses Endpoint (No Authentication Needed)
-app.get('/courses', (req, res) => {
-  const query = 'SELECT * FROM courses';
-  db.query(query, (err, results) => {
-    if (err) return res.status(500).send(err);
- 
-    res.status(200).json(results);
-  });
-});
-
-// Fetch users
-app.get('/users', (req, res) => {
-  const query = 'SELECT id, name, email FROM users';
-  db.query(query, (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.status(200).json(results);
-  });
-});
-// Fetch user by ID
-app.get('/users/:id', (req, res) => {
-  const { id } = req.params;
-  const query = 'SELECT id, name, email FROM users WHERE id = ?';
-  db.query(query, [id], (err, results) => {
-    if (err) return res.status(500).send(err);
-    if (results.length === 0) return res.status(404).json({ message: 'User not found' });
-    res.status(200).json(results[0]);
-  });
-});
-
-
-// Update user
-
-
 app.put('/users/:id', (req, res) => {
-    const { id } = req.params;
-    const { name, email } = req.body; // Only name and email are allowed for updates
+  const userId = req.params.id;
+  const { name, email, image } = req.body;
 
-    // Update query without password
-    const query = 'UPDATE users SET name = ?, email = ? WHERE id = ?';
-    const params = [name, email, id];
-
-    db.query(query, params, (err, results) => {
-        if (err) {
-            console.error('Database update error:', err);
-            return res.status(500).json({ message: 'Failed to update user' });
-        }
-
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        res.status(200).json({ message: 'User updated successfully' });
-    });
-});
-
-
-
-// Delete user
-app.delete('/users/:id', (req, res) => {
-  const { id } = req.params;
-  const query = 'DELETE FROM users WHERE id = ?';
-  db.query(query, [id], (err) => {
-    if (err) return res.status(500).json({ message: 'Failed to delete user' });
-    res.status(200).json({ message: 'User deleted successfully' });
+  const query = 'UPDATE users SET name = ?, email = ?, image = ? WHERE id = ?';
+  db.query(query, [name, email, image, userId], (err, result) => {
+    if (err) {
+      console.error('Database update error:', err);
+      return res.status(500).json({ message: 'Failed to update user' });
+    }
+    res.status(200).json({ message: 'User updated successfully' });
   });
 });
 
 
-
+app.get('/users', (req, res) => {
+  const query = 'SELECT * FROM users'; // Replace 'users' with your actual table name
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ message: 'Failed to fetch users', error: err });
+    }
+    res.status(200).json(results);
+  });
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
- 
-
-
-
-

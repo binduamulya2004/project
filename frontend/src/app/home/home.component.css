@@ -1,0 +1,55 @@
+/* Styling for the navigation bar */
+.nav-bar {
+    display: flex;
+    justify-content: flex-end;
+    /* Moves buttons to the right */
+    align-items: center;
+    /* Aligns buttons vertically in the container */
+    background-color: #f4f4f4;
+    /* Light background color */
+    padding: 10px;
+    border: 2px solid #ccc;
+    /* Border around the navigation bar */
+    border-radius: 5px;
+    position: sticky;
+    /* Sticks the navbar at the top */
+    top: 0;
+    /* Ensures the navbar is at the top */
+    z-index: 1000;
+    /* Keeps the navbar on top of other content */
+}
+
+/* Styling for the buttons */
+.btn {
+    margin: 0 10px;
+    /* Space between buttons */
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Styling for the page content */
+.content {
+    text-align: center;
+    margin-top: 50px;
+}
+
+h1 {
+    font-size: 28px;
+    color: #333;
+}
+
+p {
+    font-size: 18px;
+    color: #666;
+}

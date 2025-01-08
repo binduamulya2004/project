@@ -172,6 +172,20 @@ app.get('/users', (req, res) => {
   });
 });
 
+// Fetch Courses Endpoint
+app.get('/courses', (req, res) => {
+  const query = 'SELECT * FROM courses'; // Replace 'courses' with your actual table name
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ message: 'Error fetching courses', error: err.message });
+    }
+    res.status(200).json(results);
+  });
+});
+
+
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

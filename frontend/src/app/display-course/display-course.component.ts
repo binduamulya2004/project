@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
  
 @Component({
   selector: 'app-display-course',
+   standalone: true,
   templateUrl: './display-course.component.html',
   styleUrls: ['./display-course.component.css'],
   imports: [FormsModule, CommonModule, HttpClientModule]
@@ -28,7 +29,7 @@ export class DisplayCourseComponent implements OnInit {
         'Authorization': `Bearer ${token}`,
       });
  
-      this.http.get('http://localhost:3000/courses', { headers }).subscribe({
+      this.http.get('http://localhost:3000/courses').subscribe({
         next: (response: any) => {
           this.courses = response;
         },

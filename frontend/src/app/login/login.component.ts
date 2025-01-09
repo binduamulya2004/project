@@ -22,18 +22,8 @@ export class LoginComponent  {
   activeform: 'login' | 'register' = 'register';
   registerobj: RegisterModel = { id: 0,name: '', email: '', password: '' };
   loginobj: LoginModel = { email: '', password: '' };
-  showUsersTable = false;
-  users: RegisterModel[] = [];
- 
-  // For edit functionality
-  editingIndex:  number  = -1;  // Index of the user being edited
-  editObject: RegisterModel = { id: 0, name: '', email: '', password: '' };  // Object for editing user
  
   constructor(private _router: Router, private http: HttpClient) { }
- 
-  // ngOnInit() {
-  //   this.fetchUsers();
-  // }
  
   toggleform(form: 'login' | 'register') {
     this.activeform = form;

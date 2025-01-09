@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
  
 @Component({
   selector: 'app-create-course',
+   standalone: true,
   templateUrl: './create-course.component.html',
   styleUrls: ['./create-course.component.css'],
   imports: [FormsModule],
@@ -31,7 +32,7 @@ export class CreateCourseComponent {
         'Authorization': `Bearer ${token}`,
       });
  
-      this.http.post('http://localhost:3000/create-course', this.course, { headers }).subscribe({
+      this.http.post('http://localhost:3000/create-course', this.course).subscribe({
         next: (response) => {
           console.log('Course Created Successfully!', response);
           alert('Course Created Successfully');

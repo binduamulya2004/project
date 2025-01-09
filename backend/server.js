@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
@@ -162,6 +164,7 @@ app.put('/users/:id', (req, res) => {
 
 
 app.get('/users', (req, res) => {
+  
   const query = 'SELECT * FROM users'; // Replace 'users' with your actual table name
   db.query(query, (err, results) => {
     if (err) {
@@ -188,5 +191,8 @@ app.get('/courses', (req, res) => {
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log("Server is running on port ${PORT}");
 });
+
+
+

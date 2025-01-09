@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-allusers',
-  templateUrl: './allusers.component.html',
+  templateUrl: './allusers.component.html', standalone: true,
   imports: [CommonModule, FormsModule,HttpClientModule],
   styleUrls: ['./allusers.component.css'],
 })
@@ -26,6 +26,8 @@ export class AllusersComponent implements OnInit {
     this.http.get('http://localhost:3000/users').subscribe(
       (response: any) => {
         this.users = response;
+
+        console.log("users: " ,this.users);
       },
       (error) => {
         console.error('Error fetching users:', error);
@@ -46,7 +48,7 @@ export class AllusersComponent implements OnInit {
         id: userId,
         name: this.editObject.name,
         email: this.editObject.email,
-        image: this.editObject.image, // Include image URL in the update
+        image: this.editObject.image,
       };
 
       this.http.put(`http://localhost:3000/users/${userId}`, updatedUser).subscribe({

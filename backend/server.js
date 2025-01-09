@@ -91,7 +91,7 @@ app.post('/uploadImage', upload.single('image'), (req, res) => {
 
 // Register Endpoint
 app.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password,role } = req.body;
 
   const checkuserquery = 'SELECT * FROM users WHERE email = ?';
   db.query(checkuserquery, [email], async (err, results) => {
@@ -103,9 +103,10 @@ app.post('/register', async (req, res) => {
 
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
+        const userRole = role || 'user'; 
 
-      const insertquery = 'INSERT INTO users(name, email, password) VALUES(?,?,?)';
-      db.query(insertquery, [name, email, hashedPassword], (err) => {
+      const insertquery = 'INSERT INTO users(name, email, password,role) VALUES(?,?,?,?)';
+      db.query(insertquery, [name, email, hashedPassword,userRole], (err) => {
         if (err) return res.status(500).send(err);
 
         const token = jwt.sign({ email, name }, JWT_SECRET, { expiresIn: '1h' });

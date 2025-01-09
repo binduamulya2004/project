@@ -45,6 +45,21 @@
   <form *ngIf="activeform === 'register'" (ngSubmit)="registerform()" novalidate>
     <h2>REGISTER</h2>
 
+
+
+    <div>
+      <label>Register As :</label>
+      <label>
+        <input type="radio" [(ngModel)]="registerobj.role" name="role" value="user" required />
+        User
+      </label>
+      <label>
+        <input type="radio" [(ngModel)]="registerobj.role" name="role" value="admin" required />
+        Admin
+      </label>
+    </div>
+    <br>
+
     <!-- Name Field -->
     <div class="form-group">
       <input type="text" name="name" [(ngModel)]="registerobj.name" placeholder="Enter Your Name" required

@@ -20,7 +20,7 @@ export interface ApiResponse {
 })
 export class LoginComponent  {
   activeform: 'login' | 'register' = 'register';
-  registerobj: RegisterModel = { id: 0,name: '', email: '', password: '' };
+  registerobj: RegisterModel = { id: 0,name: '', email: '', password: '' , role:''};
   loginobj: LoginModel = { email: '', password: '' };
  
   constructor(private _router: Router, private http: HttpClient) { }
@@ -31,6 +31,7 @@ export class LoginComponent  {
  
   // Register form submission
   registerform() {
+    console.log("register details ",this.registerobj);
 this.http.post('http://localhost:3000/register', this.registerobj)
       .subscribe({
         next: (response: any) => {
@@ -66,6 +67,7 @@ export interface RegisterModel {
   name: string;
   email: string;
   password: string;
+  role: 'admin' | 'user'| '';
 }
  
 export interface LoginModel {
